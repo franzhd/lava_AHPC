@@ -1,0 +1,127 @@
+/home/franzhd/miniconda3/envs/rwkv-lava/src/lava/src/lava/magma/compiler/compiler_graphs.py:895: UserWarning: Cannot import module '<module 'dataloader' from '/home/franzhd/lava_AHPC/experiments/../src/utils/dataloader.py'>' when searching ProcessModels for Process 'WISDM_spiking_dataloader'.
+  warnings.warn(
+/home/franzhd/miniconda3/envs/rwkv-lava/src/lava/src/lava/magma/compiler/compiler_graphs.py:895: UserWarning: Cannot import module '<module 'dataloader' from '/home/franzhd/lava_AHPC/experiments/../src/utils/dataloader.py'>' when searching ProcessModels for Process 'OutputProcess'.
+  warnings.warn(
+Time step: 1 spiking out process spikingTime step: 1 output process spiking
+
+Time step: 1 output process post guard
+Time step: 2 output process spikingTime step: 2 spiking out process spiking
+
+Time step: 2 output process post guard
+Time step: 3 spiking out process spikingTime step: 3 output process spiking
+
+Time step: 3 output process post guard
+Time step: 4 spiking out process spikingTime step: 4 output process spiking
+
+Time step: 4 output process post guard
+Time step: 5 output process spikingTime step: 5 spiking out process spiking
+
+Time step: 5 output process post guard
+Time step: 6 output process spikingTime step: 6 spiking out process spiking
+
+Time step: 6 output process post guard
+Time step: 7 output process spikingTime step: 7 spiking out process spiking
+
+Time step: 7 output process post guard
+Time step: 8 spiking out process spikingTime step: 8 output process spiking
+
+Time step: 8 output process post guard
+Time step: 9 spiking out process spikingTime step: 9 output process spiking
+
+Time step: 9 output process post guard
+Time step: 10 spiking out process spikingTime step: 10 output process spiking
+
+Time step: 10 output process post guard
+Time step: 11 output process spikingTime step: 11 spiking out process spiking
+
+Time step: 11 output process post guard
+Time step: 12 spiking out process spikingTime step: 12 output process spiking
+
+Time step: 12 output process post guard
+Time step: 13 spiking out process spikingTime step: 13 output process spiking
+
+Time step: 13 output process post guard
+Time step: 14 output process spikingTime step: 14 spiking out process spiking
+
+Time step: 14 output process post guard
+Time step: 15 spiking out process spikingTime step: 15 output process spiking
+
+Time step: 15 output process post guard
+Time step: 16 spiking out process spikingTime step: 16 output process spiking
+
+Time step: 16 output process post guard
+Time step: 17 output process spikingTime step: 17 spiking out process spiking
+Time step: 17 output process post guard
+
+Time step: 18 spiking out process spikingTime step: 18 output process spiking
+
+Time step: 18 output process post guard
+Time step: 19 output process spikingTime step: 19 spiking out process spiking
+
+Time step: 19 output process post guard
+Time step: 20 output process spikingTime step: 20 spiking out process spiking
+
+Time step: 20 output process post guard
+Time step: 21 output process spikingTime step: 21 spiking out process spiking
+
+Time step: 21 output process post guard
+Time step: 22 spiking out process spikingTime step: 22 output process spiking
+
+Time step: 22 output process post guard
+Time step: 23 output process spikingTime step: 23 spiking out process spiking
+
+Time step: 23 output process post guard
+Time step: 24 output process spikingTime step: 24 spiking out process spiking
+
+Time step: 24 output process post guard
+Time step: 25 spiking out process spikingTime step: 25 output process spiking
+
+Time step: 25 output process post guard
+Time step: 26 output process spikingTime step: 26 spiking out process spiking
+
+Time step: 26 output process post guard
+Time step: 27 output process spikingTime step: 27 spiking out process spiking
+
+Time step: 27 output process post guard
+Time step: 28 output process spikingTime step: 28 spiking out process spiking
+
+Time step: 28 output process post guard
+Time step: 29 output process spikingTime step: 29 spiking out process spiking
+Time step: 29 output process post guard
+
+Time step: 30 output process spikingTime step: 30 spiking out process spiking
+
+Time step: 30 output process post guard
+Time step: 31 output process spikingTime step: 31 spiking out process spiking
+
+Time step: 31 output process post guard
+Time step: 32 output process spikingTime step: 32 spiking out process spiking
+
+Time step: 32 output process post guard
+Time step: 33 output process spikingTime step: 33 spiking out process spiking
+
+Time step: 33 output process post guard
+Time step: 34 spiking out process spikingTime step: 34 output process spiking
+
+Time step: 34 output process post guard
+Time step: 35 output process spikingTime step: 35 spiking out process spiking
+
+Time step: 35 output process post guard
+Time step: 36 output process spikingTime step: 36 spiking out process spiking
+
+Time step: 36 output process post guard
+Time step: 37 output process spikingTime step: 37 spiking out process spiking
+
+Time step: 37 output process post guard
+Time step: 38 spiking out process spikingTime step: 38 output process spiking
+
+Time step: 38 output process post guard
+Time step: 39 output process spikingTime step: 39 spiking out process spiking
+
+Time step: 39 output process post guard
+Time step: 40 output process spikingTime step: 40 spiking out process spiking
+
+Time step: 40 output process post guard
+Time step: 40 output process post guardTime step: 40 spiking out process post mgmt
+
+Time step: 40 output process post mgmt
