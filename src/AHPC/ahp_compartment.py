@@ -146,7 +146,7 @@ class AbstractPyAHPCModelFloat(PyLoihiProcessModel):
         
         a_in_data = self.a_in.recv()
         self.subthr_dynamics(activation_in=a_in_data)
-        self.c_out.send(self.v)
+        self.c_out.send(self.u)
 
 class AbstractPyAHPCModelFixed(PyLoihiProcessModel):
     """Abstract implementation of fixed point precision
@@ -242,7 +242,7 @@ class AbstractPyAHPCModelFixed(PyLoihiProcessModel):
         a_in_data = self.a_in.recv()
 
         self.subthr_dynamics(activation_in=a_in_data)
-        self.c_out.send(self.v)
+        self.c_out.send(self.u)
 
 ########## ACTUAL MODEL DEFINITION ##########
         
