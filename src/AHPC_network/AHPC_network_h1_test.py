@@ -361,14 +361,16 @@ class PyBackwardBranch(AbstractSubProcessModel):
         self.linear_in = Dense(weights=proc.in_weight.init)
         proc.s_in.connect(self.linear_in.s_in)
 
-        self.leaky = AHPCompartment(shape=(proc.in_weight.shape[0],),
+        self.leaky = LIF(shape=(proc.in_weight.shape[0],),
                             u = 0,
                             v = 0,
                             du = 1,
-                            dv= proc.betas.init,
+                            dv = proc.betas.init,
+                            vth=proc.vth.init,
                             log_config= proc.log_config,
-                            name= "AHPC"
+                            name= "backward_leaky"
                         )
+
         self.linear_in.a_out.connect(self.leaky.a_in)
 
         self.linear_out = Dense(weights=proc.out_weight.init, num_message_bits=32)
