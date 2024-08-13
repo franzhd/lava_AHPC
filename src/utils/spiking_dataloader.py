@@ -86,7 +86,7 @@ class WisdmDatasetParser():
         print(f'num classes eval dataset: {self.val_dataset[1].max()+1} occurrences of each class:{np.bincount(self.val_dataset[1])}')
         print(f'num classes test dataset: {self.test_dataset[1].max()+1} occurrences of each class:{np.bincount(self.test_dataset[1])}')
 
-    def get_training_set(self, subset=None, shuffle=False):
+    def get_training_set(self, subset=None, shuffle=True):
         
         if subset:
             N = self.test_dataset[0].shape[0]
@@ -102,7 +102,7 @@ class WisdmDatasetParser():
             return np.array(self.train_dataset[0][ids]), np.array(self.train_dataset[1][ids])
         return self.train_dataset
 
-    def get_validation_set(self, subset=None, shuffle=False):
+    def get_validation_set(self, subset=None, shuffle=True):
         
         if subset:
             N = self.test_dataset[0].shape[0]
@@ -119,7 +119,7 @@ class WisdmDatasetParser():
         
         return self.val_dataset
 
-    def get_test_set(self, subset=None, shuffle=False):
+    def get_test_set(self, subset=None, shuffle=True):
         
         if subset:
             N = self.test_dataset[0].shape[0]

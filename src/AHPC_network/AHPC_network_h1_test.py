@@ -84,9 +84,10 @@ class AHPCnetwork(AbstractProcess):
            
         #declaration of experiments/net_test.ipynbin and out ports
         self.a_in  = InPort(shape = (linear1.shape[1],))
-        self.s_out  = OutPort(shape = (linear3.shape[0],))
-        self.b_out  = OutPort(shape = (recurrent_out_weights.shape[0],))
+        self.in_out  = OutPort(shape = (linear1.shape[0],))
         self.f_out = OutPort(shape = (linear2.shape[0],))
+        self.s_out  = OutPort(shape = (linear3.shape[0],))
+
         self.linear_2_out = OutPort(shape = (linear2.shape[0],))
 
         self.linear1_w = Var(shape=linear1.shape, init=linear1)
@@ -203,15 +204,15 @@ class PyAHPCnetworkModel(AbstractSubProcessModel):
                             name= "leaky1"
                         )
         self.linear1.a_out.connect(self.leaky1.a_in)
-
+        self.leaky1.s_out.connect(proc.in_out)
         self.linear2 = Dense(weights=proc.linear2_w.init, num_message_bits=32)
         self.linear2.s_in.connect_from(self.leaky1.s_out)
 
         self.leaky2 = LIF(shape=(proc.linear2_w.shape[0],),
                             u = 0,
                             v = 0,
-                            dv = 1,
-                            du = proc.leaky2_betas.init,
+                            du = 1,
+                            dv= proc.leaky2_betas.init,
                             vth=proc.leaky2_vth.init,
                             log_config= proc.log_config,
                             name= "leaky2"
@@ -227,7 +228,7 @@ class PyAHPCnetworkModel(AbstractSubProcessModel):
         self.leaky2.s_out.connect(self.backward.s_in)
 
         self.backward.s_out.connect(self.leaky2.a_in)
-        self.backward.s_out.connect(proc.b_out)
+        #self.backward.s_out.connect(proc.b_out)
         # self.recurrent_out.a_out.connect(self.leaky2.a_in)
 
         self.linear3 = Dense(weights=proc.linear3_w.init, num_message_bits=0)
@@ -236,8 +237,8 @@ class PyAHPCnetworkModel(AbstractSubProcessModel):
         self.leaky3 = LIF(shape=(proc.linear3_w.shape[0],),
                             u = 0,
                             v = 0,
-                            dv = 1,
-                            du = proc.leaky3_betas.init,
+                            du = 1,
+                            dv = proc.leaky3_betas.init,
                             vth=proc.leaky3_vth.init,
                             log_config= proc.log_config,
                             name= "leaky3"
@@ -363,8 +364,8 @@ class PyBackwardBranch(AbstractSubProcessModel):
         self.leaky = AHPCompartment(shape=(proc.in_weight.shape[0],),
                             u = 0,
                             v = 0,
-                            dv = 1,
-                            du = proc.betas.init,
+                            du = 1,
+                            dv= proc.betas.init,
                             log_config= proc.log_config,
                             name= "AHPC"
                         )
