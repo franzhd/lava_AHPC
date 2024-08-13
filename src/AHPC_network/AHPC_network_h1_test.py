@@ -369,6 +369,7 @@ class PyBackwardBranch(AbstractSubProcessModel):
                             log_config= proc.log_config,
                             name= "AHPC"
                         )
+        
         self.linear_in.a_out.connect(self.leaky.a_in)
 
         self.linear_out = Dense(weights=proc.out_weight.init, num_message_bits=32)
