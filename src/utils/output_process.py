@@ -24,16 +24,16 @@ class OutputProcess(AbstractProcess):
     """Process to gather spikes from 10 output LIF neurons and interpret the
     highest spiking rate as the classifier output"""
 
-    def __init__(self,num_classes, num_samples, num_step_per_sample, net_delay, **kwargs):
+    def __init__(self,num_classes, num_samples, num_step_per_sample, clear_intervall, **kwargs):
         super().__init__()
         shape = (num_classes,)
         n_img = num_samples
-        self.net_delay = Var(shape=(1,), init=net_delay)
+        self.clear_intervall = Var(shape=(1,), init=clear_intervall)
         self.num_images = Var(shape=(1,), init=n_img)
         self.spikes_in = InPort(shape=shape)
         self.label_in = InPort(shape=(1,))
         self.spikes_accum = Var(shape=shape)  # Accumulated spikes for classification
-        self.num_steps_per_image = Var(shape=(1,), init= num_step_per_sample)
+        self.num_step_per_sample = Var(shape=(1,), init= num_step_per_sample)
         self.pred_labels = Var(shape=(n_img,))
         self.gt_labels = Var(shape=(n_img,))
 
@@ -43,10 +43,10 @@ class OutputProcess(AbstractProcess):
 class PyOutputProcessModel(PyLoihiProcessModel):
     label_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, int, precision=32)
     spikes_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, bool, precision=1)
-    net_delay: int = LavaPyType(int, int, precision=32)
+    clear_intervall: int = LavaPyType(int, int, precision=32)
     num_images: int = LavaPyType(int, int, precision=32)
     spikes_accum: np.ndarray = LavaPyType(np.ndarray, np.int32, precision=32)
-    num_steps_per_image: int = LavaPyType(int, int, precision=32)
+    num_step_per_sample: int = LavaPyType(int, int, precision=32)
     pred_labels: np.ndarray = LavaPyType(np.ndarray, int, precision=32)
     gt_labels: np.ndarray = LavaPyType(np.ndarray, int, precision=32)
         
@@ -58,9 +58,7 @@ class PyOutputProcessModel(PyLoihiProcessModel):
     def post_guard(self):
         """Guard function for PostManagement phase.
         """
-        if self.time_step % (self.num_steps_per_image + self.net_delay) == 0 and \
-                self.time_step > 1:
-            self.start_accumulator = 0
+        if self.time_step % (self.num_step_per_sample + self.clear_intervall) == 0:
             return True
         return False
 
@@ -79,8 +77,4 @@ class PyOutputProcessModel(PyLoihiProcessModel):
         """Spiking phase: executed unconditionally at every time-step
         """
         spk_in = self.spikes_in.recv()
-        #print(f"Spikes received: {spk_in}")
-        if self.start_accumulator < self.net_delay:
-            self.start_accumulator += 1
-        else:
-            self.spikes_accum = self.spikes_accum + spk_in
+        self.spikes_accum = self.spikes_accum + spk_in

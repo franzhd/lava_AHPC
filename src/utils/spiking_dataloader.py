@@ -181,7 +181,7 @@ def filter_dataset(x_train, y_train, selected_classes):
 class WISDM_spiking_dataloader(AbstractProcess):
     """Spiking dataloader for the WISDM dataset."""
 
-    def __init__(self, signal_set, net_delay=0, **kwargs):
+    def __init__(self, signal_set, clear_intervall=0, **kwargs):
         super().__init__()
 
         data_shape = signal_set[0].shape
@@ -190,7 +190,7 @@ class WISDM_spiking_dataloader(AbstractProcess):
         num_timesteps = data_shape[2] 
         num_classes = signal_set[1].max()
 
-        self.net_delay = Var(shape=(1,), init=net_delay)  # Network delay
+        self.clear_intervall = Var(shape=(1,), init=clear_intervall)  # Network delay
         self.samples = Var(shape=(num_samples, num_channels, num_timesteps), init=signal_set[0])  # Input samples
         self.labels = Var(shape=(num_samples,), init=signal_set[1])  # Ground truth labels
 
@@ -212,7 +212,7 @@ class WISDM_spiking_dataloader(AbstractProcess):
 @tag("floating_pt", "fixed_pt")
 class Py_spike_dataloader(PyLoihiProcessModel):
     
-    net_delay: int = LavaPyType(int, int, precision=32)
+    clear_intervall: int = LavaPyType(int, int, precision=32)
     num_samples: int = LavaPyType(int, int, precision=32)
     samples: np.ndarray = LavaPyType(np.ndarray, np.float32, precision=32)
     labels: np.ndarray = LavaPyType(np.ndarray, np.int32, precision=32)
@@ -234,8 +234,7 @@ class Py_spike_dataloader(PyLoihiProcessModel):
     def post_guard(self):
         """Guard function for PostManagement phase.
         """
-        if self.time_step % (self.num_timesteps_per_sample + self.net_delay) == 0 and \
-                self.time_step > 1:
+        if self.time_step % (self.num_timesteps_per_sample + self.clear_intervall) == 0:
             self.curr_sample_time_step = 0
             return True
         return False
@@ -244,7 +243,6 @@ class Py_spike_dataloader(PyLoihiProcessModel):
         """Post-Management phase: executed only when guard function above 
         returns True.
         """
-        self.curr_sample = self.samples[self.curr_sample_id]
         #print(f"Sample sent: {self.curr_sample}")
         self.curr_label = self.labels[self.curr_sample_id]
         self.label_out.send(np.array([self.curr_label]))
@@ -253,7 +251,7 @@ class Py_spike_dataloader(PyLoihiProcessModel):
     def run_spk(self):
         """Spiking phase: executed unconditionally at every time-step
         """
-        s_out = self.curr_sample[:, self.curr_sample_time_step]
+        s_out = self.samples[self.curr_sample_id,:, self.curr_sample_time_step]
         #print(f"Spikes sent: {s_out}")
         if self.curr_sample_time_step < self.num_timesteps_per_sample-1:
             self.curr_sample_time_step += 1
