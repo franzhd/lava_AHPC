@@ -23,7 +23,7 @@ current_folder = os.path.dirname(os.path.abspath(__file__))
 parent_folder = os.path.dirname(current_folder)
 sys.path.append(parent_folder)
 from AHPC.ahp_compartment import AHPCompartment
-
+from dense_mod import DenseMod
 
 
 # Block structure of the AHPC network
@@ -358,7 +358,7 @@ class PyBackwardBranch(AbstractSubProcessModel):
 
     def __init__(self, proc):
         
-        self.linear_in = Dense(weights=proc.in_weight.init)
+        self.linear_in = DenseMod(weights=proc.in_weight.init)
         proc.s_in.connect(self.linear_in.s_in)
 
         self.leaky = AHPCompartment(shape=(proc.in_weight.shape[0],),
@@ -372,7 +372,7 @@ class PyBackwardBranch(AbstractSubProcessModel):
         
         self.linear_in.a_out.connect(self.leaky.a_in)
 
-        self.linear_out = Dense(weights=proc.out_weight.init, num_message_bits=32)
+        self.linear_out = Dense(weights=proc.out_weight.init)
         self.linear_out.s_in.connect_from(self.leaky.c_out)
         self.linear_out.a_out.connect(proc.s_out)
 
