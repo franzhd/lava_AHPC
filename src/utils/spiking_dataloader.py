@@ -251,9 +251,9 @@ class Py_spike_dataloader(PyLoihiProcessModel):
     def run_spk(self):
         """Spiking phase: executed unconditionally at every time-step
         """
-        s_out = self.samples[self.curr_sample_id,:, self.curr_sample_time_step]
         #print(f"Spikes sent: {s_out}")
-        if self.curr_sample_time_step < self.num_timesteps_per_sample-1:
+        if self.curr_sample_time_step < self.num_timesteps_per_sample:
+            s_out = self.samples[self.curr_sample_id,:, self.curr_sample_time_step]
             self.curr_sample_time_step += 1
         else:
             s_out = np.array([0.0]*self.curr_sample.shape[0])

@@ -16,7 +16,7 @@ from lava.magma.core.sync.protocols.loihi_protocol import LoihiProtocol
 from lava.magma.core.resources import CPU
 
 # Import decorators
-from lava.magma.core.decorator import implements, requires
+from lava.magma.core.decorator import implements, requires, tag
 
 import numpy as np
 
@@ -40,6 +40,7 @@ class OutputProcess(AbstractProcess):
 
 @implements(proc=OutputProcess, protocol=LoihiProtocol)
 @requires(CPU)
+@tag("floating_pt", "fixed_pt")
 class PyOutputProcessModel(PyLoihiProcessModel):
     label_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, int, precision=32)
     spikes_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, bool, precision=1)
