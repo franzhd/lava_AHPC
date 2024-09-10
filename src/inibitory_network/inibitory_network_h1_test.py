@@ -69,15 +69,24 @@ class InibitoryLifNet(AbstractProcess):
         print(f"leaky1 betas:{leaky1_betas}")
         print(f"leaky1 vth:{leaky1_vth}")
         
-        linear2= data['linear2']
+        
         leaky2_vth= data['recurrent_vth']
         leaky2_betas= 1 - data['recurrent_betas']
         leaky2_betas= leaky2_betas if  leaky2_betas >= 0 else np.zeros(leaky2_betas.shape)
         if is_fixed:
-            leaky2_betas = fp32_to_fixed_point_unsigned(leaky2_betas, 12)
-            leaky2_vth = fp32_to_fixed_point_signed(leaky2_vth, 24)
-            leaky2_vth = np.right_shift(leaky2_vth, 7)
-            linear2 = fp32_to_fixed_point_signed(linear2, 8)
+            leaky2_betas = fp32_to_fixed_point_signed(leaky2_betas, 16)
+            leaky2_betas = np.right_shift(leaky2_betas, 4)
+
+            leaky2_vth = fp32_to_fixed_point_unsigned(leaky2_vth, 23)
+            leaky2_vth = np.right_shift(leaky2_vth, 6)
+
+            linear2 = data['linear2_quant']
+            #linear2 = fp32_to_fixed_point_signed(linear2, 8)
+
+        else:
+            linear2 = data['linear2']
+            
+
 
 
         
@@ -85,24 +94,31 @@ class InibitoryLifNet(AbstractProcess):
         print(f"leaky2 vth:{leaky2_vth}")
         
         
-        recurrent_in_weights = data['input_dense']
-        recurrent_out_weights = data['output_dense']
+
         recurrent_vth = data['activation_vth']
         recurrent_leaky_betas = 1 - data['activation_betas']
         
         recurrent_leaky_betas= recurrent_leaky_betas if recurrent_leaky_betas >= 0 else np.zeros(recurrent_leaky_betas.shape)
         if is_fixed:
-            recurrent_leaky_betas = fp32_to_fixed_point_unsigned(recurrent_leaky_betas, 12)
-            recurrent_vth = fp32_to_fixed_point_unsigned(recurrent_vth, 24)
-            recurrent_vth = np.right_shift(recurrent_vth, 7)
-            recurrent_in_weights = fp32_to_fixed_point_signed(recurrent_in_weights, 8)
-            recurrent_out_weights = fp32_to_fixed_point_signed(recurrent_out_weights, 8)
+            recurrent_leaky_betas = fp32_to_fixed_point_unsigned(recurrent_leaky_betas, 16)
+            recurrent_leaky_betas = np.right_shift(recurrent_leaky_betas, 4)
+
+            recurrent_vth = fp32_to_fixed_point_unsigned(recurrent_vth, 16)
+            recurrent_vth = np.left_shift(recurrent_vth, 1)
+
+            recurrent_in_weights = data['input_dense_quant']
+            recurrent_out_weights = data['output_dense_quant']
+            #recurrent_in_weights = fp32_to_fixed_point_signed(recurrent_in_weights, 8)
+            #recurrent_out_weights = fp32_to_fixed_point_signed(recurrent_out_weights, 8)
+        else:
+            recurrent_in_weights = data['input_dense']
+            recurrent_out_weights = data['output_dense']
 
         print(f"recurrent vth:{recurrent_vth}")
         print(f"recurrent betas:{recurrent_leaky_betas}")
         
         
-        linear3= data['linear3']
+        
         leaky3_vth= data['leaky2_vth']
         leaky3_betas= 1 - data['leaky2_betas']
         leaky3_betas= leaky3_betas if leaky3_betas >= 0 else np.zeros(leaky3_betas.shape)
@@ -110,10 +126,16 @@ class InibitoryLifNet(AbstractProcess):
         if is_fixed:
             print(f"leaky3 betas before conversion:{leaky3_betas}")
             print(f"leaky3 vth before conversion:{leaky3_vth}")
-            leaky3_betas = fp32_to_fixed_point_unsigned(leaky3_betas, 12)
-            leaky3_vth = fp32_to_fixed_point_unsigned(leaky3_vth, 24)
-            leaky3_vth = np.right_shift(leaky3_vth, 7)
-            linear3 = fp32_to_fixed_point_signed(linear3, 8)
+            leaky3_betas = fp32_to_fixed_point_unsigned(leaky3_betas, 16)
+            leaky3_betas = np.right_shift(leaky3_betas, 4)
+
+            leaky3_vth = fp32_to_fixed_point_unsigned(leaky3_vth, 15)
+            leaky3_vth = np.left_shift(leaky3_vth, 1)
+
+            linear3 = data['linear3_quant']
+            #linear3 = fp32_to_fixed_point_signed(linear3, 8)
+        else:
+            linear3 = data['linear3']
  
 
         if is_fixed:
@@ -202,21 +224,6 @@ class InibitoryLifNet(AbstractProcess):
 
         self.recurrent_in_a_buffer.set(np.zeros(self.recurrent_in_a_buffer.shape))
         self.recurrent_out_a_buffer.set(np.zeros(self.recurrent_out_a_buffer.shape))
-
-    def print_state(self):
-        print(f"leaky1_v: {self.leaky1_v.get()}")
-        print(f"leaky1_u: {self.leaky1_u.get()}")
-        print(f"leaky2_v: {self.leaky2_v.get()}")
-        print(f"leaky2_u: {self.leaky2_u.get()}")
-        print(f"leaky3_v: {self.leaky3_v.get()}")
-        print(f"leaky3_u: {self.leaky3_u.get()}")
-        print("")
-    
-    def print_state_variables(self):
-        print('###network state variables###')
-        print(f"leaky1_betas: {self.leaky1_betas.get()}")
-        print(f"leaky1_vth: {self.leaky1_vth.get()}")
-        print(f"leaky2_betas: {self.leaky2_betas.get()}")
         print(f"leaky2_vth: {self.leaky2_vth.get()}")
         print(f"leaky3_betas: {self.leaky3_betas.get()}")
         print(f"leaky3_vth: {self.leaky3_vth.get()}")

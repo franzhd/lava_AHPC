@@ -20,7 +20,7 @@ class LIFEncoder(LIF):
 @tag("fixed_pt")
 class PyLifEncoderModelMixed(AbstractPyLifModelFloat):
 
-    s_out : PyOutPort = LavaPyType(PyOutPort.VEC_DENSE, bool, precision=1)
+    s_out: PyOutPort = LavaPyType(PyOutPort.VEC_DENSE, np.int32, precision=24)
     vth: float = LavaPyType(float, float)
     
     def spiking_activation(self):
