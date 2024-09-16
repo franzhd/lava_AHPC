@@ -29,13 +29,13 @@ def fp32_to_fixed_point_unsigned(values: np.array, num_bits: int) -> int:
     """Converts a floating point number to a fixed point number."""
     max_val = 2 ** num_bits - 1
     values = np.clip(values, 0, max_val / (2 ** num_bits))
-    return np.round(values * max_val).astype(np.int32)
+    return np.floor(values * max_val)
 
 def fp32_to_fixed_point_signed(values: np.array, num_bits: int) -> int:
     """Converts a floating point number to a fixed point number."""
     max_val = 2 ** num_bits - 1
     values = np.clip(values, -max_val / (2 ** (num_bits - 1)), max_val / (2 ** (num_bits - 1)))
-    return np.round(values * max_val).astype(np.int32)
+    return np.floor(values * max_val)
 
 # Block structure of the AHPC network
 #       +-----------+     +-----------+    +-----------+              +-----------+          +-----------+     +-----------+
@@ -72,17 +72,22 @@ class InibitoryLifNet(AbstractProcess):
         
         leaky2_vth= data['recurrent_vth']
         leaky2_betas= 1 - data['recurrent_betas']
+
+        print(f"leaky2 betas:{leaky2_betas}")
+        print(f"leaky2 vth:{leaky2_vth}")
+
         leaky2_betas= leaky2_betas if  leaky2_betas >= 0 else np.zeros(leaky2_betas.shape)
         if is_fixed:
-            leaky2_betas = fp32_to_fixed_point_signed(leaky2_betas, 16)
-            leaky2_betas = np.right_shift(leaky2_betas, 4)
-
-            leaky2_vth = fp32_to_fixed_point_unsigned(leaky2_vth, 23)
-            leaky2_vth = np.right_shift(leaky2_vth, 6)
-
+            leaky2_betas = fp32_to_fixed_point_unsigned(leaky2_betas, 12)
+            # leaky2_betas = np.right_shift(leaky2_betas, 4)
+            leaky2_betas = leaky2_betas.astype(np.uint16)
+            leaky2_vth = fp32_to_fixed_point_unsigned(leaky2_vth, 17)
+            # leaky2_vth = np.right_shift(leaky2_vth, 6)
+            leaky2_vth = leaky2_vth.astype(np.int32)
             linear2 = data['linear2_quant']
             #linear2 = fp32_to_fixed_point_signed(linear2, 8)
-
+            print(f"leaky2 betas after conversion:{leaky2_betas}")
+            print(f"leaky2 vth after conversion:{leaky2_vth}")
         else:
             linear2 = data['linear2']
             
@@ -90,8 +95,7 @@ class InibitoryLifNet(AbstractProcess):
 
 
         
-        print(f"leaky2 betas:{leaky2_betas}")
-        print(f"leaky2 vth:{leaky2_vth}")
+
         
         
 
@@ -100,11 +104,11 @@ class InibitoryLifNet(AbstractProcess):
         
         recurrent_leaky_betas= recurrent_leaky_betas if recurrent_leaky_betas >= 0 else np.zeros(recurrent_leaky_betas.shape)
         if is_fixed:
-            recurrent_leaky_betas = fp32_to_fixed_point_unsigned(recurrent_leaky_betas, 16)
-            recurrent_leaky_betas = np.right_shift(recurrent_leaky_betas, 4)
+            recurrent_leaky_betas = fp32_to_fixed_point_unsigned(recurrent_leaky_betas, 12)
+            recurrent_leaky_betas = recurrent_leaky_betas.astype(np.uint16)
 
-            recurrent_vth = fp32_to_fixed_point_unsigned(recurrent_vth, 16)
-            recurrent_vth = np.left_shift(recurrent_vth, 1)
+            recurrent_vth = fp32_to_fixed_point_signed(recurrent_vth, 16)
+            recurrent_vth = recurrent_vth.astype(np.int32)
 
             recurrent_in_weights = data['input_dense_quant']
             recurrent_out_weights = data['output_dense_quant']
@@ -126,11 +130,11 @@ class InibitoryLifNet(AbstractProcess):
         if is_fixed:
             print(f"leaky3 betas before conversion:{leaky3_betas}")
             print(f"leaky3 vth before conversion:{leaky3_vth}")
-            leaky3_betas = fp32_to_fixed_point_unsigned(leaky3_betas, 16)
-            leaky3_betas = np.right_shift(leaky3_betas, 4)
+            leaky3_betas = fp32_to_fixed_point_unsigned(leaky3_betas, 12)
+            leaky3_betas = leaky3_betas.astype(np.uint16)
 
-            leaky3_vth = fp32_to_fixed_point_unsigned(leaky3_vth, 15)
-            leaky3_vth = np.left_shift(leaky3_vth, 1)
+            leaky3_vth = fp32_to_fixed_point_signed(leaky3_vth,16)
+            leaky3_vth = leaky3_betas.astype(np.int32)
 
             linear3 = data['linear3_quant']
             #linear3 = fp32_to_fixed_point_signed(linear3, 8)
@@ -141,7 +145,7 @@ class InibitoryLifNet(AbstractProcess):
         if is_fixed:
             du = 4095
         else:
-            du = 1
+            du = 1.0
     
         print(f"leaky3 betas:{leaky3_betas}")
         print(f"leaky3 vth:{leaky3_vth}")
@@ -178,24 +182,24 @@ class InibitoryLifNet(AbstractProcess):
         self.leaky3_betas = Var(shape=leaky3_betas.shape, init=leaky3_betas) 
         self.leaky3_vth = Var(shape=leaky3_vth.shape, init=leaky3_vth)
         
-        self.leaky1_v = Var(shape=(self.linear1_w.shape[0],), init=0)
-        self.leaky1_u = Var(shape=(self.linear1_w.shape[0],), init=0)
+        self.leaky1_v = Var(shape=(self.linear1_w.shape[0],), init=np.zeros(self.linear1_w.shape[0]))
+        self.leaky1_u = Var(shape=(self.linear1_w.shape[0],), init=np.zeros(self.linear1_w.shape[0]))
 
-        self.leaky2_v = Var(shape=(self.linear2_w.shape[0],), init=0)
-        self.leaky2_u = Var(shape=(self.linear2_w.shape[0],), init=0)
+        self.leaky2_v = Var(shape=(self.linear2_w.shape[0],), init=np.zeros(self.linear2_w.shape[0]))
+        self.leaky2_u = Var(shape=(self.linear2_w.shape[0],), init=np.zeros(self.linear2_w.shape[0]))
 
-        self.ahpc_v = Var(shape=(self.linear2_w.shape[0],), init=0)
-        self.ahpc_u = Var(shape=(self.linear2_w.shape[0],), init=0)
+        self.ahpc_v = Var(shape=(self.linear2_w.shape[0],), init=np.zeros(self.linear2_w.shape[0]))
+        self.ahpc_u = Var(shape=(self.linear2_w.shape[0],), init=np.zeros(self.linear2_w.shape[0]))
 
-        self.leaky3_v = Var(shape=(self.linear3_w.shape[0],), init=0)
-        self.leaky3_u = Var(shape=(self.linear3_w.shape[0],), init=0)
+        self.leaky3_v = Var(shape=(self.linear3_w.shape[0],), init=np.zeros(self.linear3_w.shape[0]))
+        self.leaky3_u = Var(shape=(self.linear3_w.shape[0],), init=np.zeros(self.linear3_w.shape[0]))
 
-        self.linear1_a_buffer = Var(shape=(self.linear1_w.shape[0],), init=0)
-        self.linear2_a_buffer = Var(shape=(self.linear2_w.shape[0],), init=0)
-        self.linear3_a_buffer = Var(shape=(self.linear3_w.shape[0],), init=0)
+        self.linear1_a_buffer = Var(shape=(self.linear1_w.shape[0],), init=np.zeros(self.linear1_w.shape[0]))
+        self.linear2_a_buffer = Var(shape=(self.linear2_w.shape[0],), init=np.zeros(self.linear2_w.shape[0]))
+        self.linear3_a_buffer = Var(shape=(self.linear3_w.shape[0],), init=np.zeros(self.linear3_w.shape[0]))
         
-        self.recurrent_in_a_buffer = Var(shape=(self.recurrent_in_w.shape[0],), init=0)
-        self.recurrent_out_a_buffer = Var(shape=(self.recurrent_out_w.shape[0],), init=0)
+        self.recurrent_in_a_buffer = Var(shape=(self.recurrent_in_w.shape[0],), init=np.zeros(self.recurrent_in_w.shape[0]))
+        self.recurrent_out_a_buffer = Var(shape=(self.recurrent_out_w.shape[0],), init=np.zeros(self.recurrent_out_w.shape[0]))
 
         if self.debug:
             self.input_w = OutPort(shape = (linear1.shape[0],))
@@ -248,14 +252,14 @@ class PyInibitoryLifNetModel(AbstractSubProcessModel):
         # LIF layers has a_in and s_out ports
 
     
-        self.linear1 = DenseEncoder(weights=proc.linear1_w.init, num_message_bits=32)
+        self.linear1 = Dense(weights=proc.linear1_w.init, num_message_bits=32, name="linear1")
         
         proc.in_ports.a_in.connect(self.linear1.s_in)
 
-        self.leaky1 = LIFEncoder(shape=(proc.linear1_w.shape[0],),
-                            u = 0,
-                            v = 0,
-                            du = 1,
+        self.leaky1 = LIF(shape=(proc.linear1_w.shape[0],),
+                            u = np.zeros(proc.linear1_w.shape[0]),
+                            v = np.zeros(proc.linear1_w.shape[0]),
+                            du = 1.0,
                             dv = proc.leaky1_betas.init,
                             vth=proc.leaky1_vth.init,
                             log_config= proc.log_config,
@@ -263,15 +267,15 @@ class PyInibitoryLifNetModel(AbstractSubProcessModel):
                         )
         self.linear1.a_out.connect(self.leaky1.a_in)
         self.leaky1.s_out.connect(proc.in_out)
-        self.linear2 = Dense(weights=proc.linear2_w.init, num_message_bits=0, sign_mode=SignMode.MIXED)
+        self.linear2 = Dense(weights=proc.linear2_w.init, num_message_bits=0, sign_mode=SignMode.MIXED, name="linear2")
         self.linear2.s_in.connect_from(self.leaky1.s_out)
 
         #self.sum = SumProcess(shape=(proc.linear2_w.shape[0],), op=1)
 
         #self.sum.a_1_in.connect_from(self.linear2.a_out)
         self.leaky2 = LIF(shape=(proc.linear2_w.shape[0],),
-                            u = 0,
-                            v = 0,
+                            u = np.zeros(proc.linear2_w.shape[0]),
+                            v = np.zeros(proc.linear2_w.shape[0]),
                             du = proc.du.init,
                             dv= proc.leaky2_betas.init,
                             vth=proc.leaky2_vth.init,
@@ -296,12 +300,12 @@ class PyInibitoryLifNetModel(AbstractSubProcessModel):
         self.backward.s_out.connect(proc.b_out)
 
 
-        self.linear3 = Dense(weights=proc.linear3_w.init, num_message_bits=0)
+        self.linear3 = Dense(weights=proc.linear3_w.init, num_message_bits=0, name="linear3")
         self.linear3.s_in.connect_from(self.leaky2.s_out)
 
         self.leaky3 = LIF(shape=(proc.linear3_w.shape[0],),
-                            u = 0,
-                            v = 0,
+                            u = np.zeros(proc.linear3_w.shape[0]),
+                            v = np.zeros(proc.linear3_w.shape[0]),
                             du = proc.du.init,
                             dv = proc.leaky3_betas.init,
                             vth=proc.leaky3_vth.init,
@@ -318,9 +322,8 @@ class PyInibitoryLifNetModel(AbstractSubProcessModel):
         print(f"leaky2 dv:{self.leaky2.dv.get()}")
         print(f"leaky2 du:{self.leaky2.du.get()}")
         print(f"leaky2 vth:{self.leaky2.vth.get()}")
-
-        print(f"recurrent du:{self.backward.betas.get()}")
-
+        print(f"recurrent dv:{self.backward.betas.get()}")
+        print(f"recurrent du:{self.backward.du.get()}")
         print(f"leaky3 dv:{self.leaky3.dv.get()}")
         print(f"leaky3 du:{self.leaky3.du.get()}")
         print(f"leaky3 vth:{self.leaky3.vth.get()}")
@@ -394,10 +397,10 @@ class BackwardBranch(AbstractProcess):
         self.betas = Var(shape=betas.shape, init=betas)
         self.vth = Var(shape=vth.shape, init=vth)
         self.out_weight = Var(shape=out_weight.shape, init=out_weight)
-        self.in_buff = Var(shape=(in_weight.shape[0],), init=0)
-        self.out_buff = Var(shape=(out_weight.shape[0],), init=0)
-        self.u = Var(shape=(in_weight.shape[0],), init=0)
-        self.v = Var(shape=(in_weight.shape[0],), init=0)
+        self.in_buff = Var(shape=(in_weight.shape[0],), init=np.zeros(in_weight.shape[0]))
+        self.out_buff = Var(shape=(out_weight.shape[0],), init=np.zeros(out_weight.shape[0]))
+        self.u = Var(shape=(in_weight.shape[0],), init=np.zeros(in_weight.shape[0]))
+        self.v = Var(shape=(in_weight.shape[0],), init=np.zeros(in_weight.shape[0]))
         log_config = params.pop('log_config', 0)
         self.log_config = log_config 
         
@@ -424,12 +427,12 @@ class PyBackwardBranch(AbstractSubProcessModel):
 
     def __init__(self, proc):
         
-        self.linear_in = Dense(weights=proc.in_weight.init, num_message_bits=0)
+        self.linear_in = Dense(weights=proc.in_weight.init, num_message_bits=0, name="linear_in")
         proc.s_in.connect(self.linear_in.s_in)
 
         self.leaky = LIF(shape=(proc.in_weight.shape[0],),
-                            u = 0,
-                            v = 0,
+                            u = np.zeros(proc.in_weight.shape[0]),
+                            v = np.zeros(proc.in_weight.shape[0]),
                             du = proc.du.init,
                             dv = proc.betas.init,
                             vth=proc.vth.init,
@@ -439,7 +442,7 @@ class PyBackwardBranch(AbstractSubProcessModel):
 
         self.linear_in.a_out.connect(self.leaky.a_in)
 
-        self.linear_out = Dense(weights=proc.out_weight.init, num_message_bits=0)
+        self.linear_out = Dense(weights=proc.out_weight.init, num_message_bits=0, name="linear_out")
         self.linear_out.s_in.connect_from(self.leaky.s_out)
         self.linear_out.a_out.connect(proc.a_out)
         self.leaky.s_out.connect(proc.s_out)
