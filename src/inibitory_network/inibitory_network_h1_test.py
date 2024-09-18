@@ -73,10 +73,10 @@ class InibitoryLifNet(AbstractProcess):
         leaky2_vth= data['recurrent_vth']
         leaky2_betas= 1 - data['recurrent_betas']
 
+        leaky2_betas= leaky2_betas if  leaky2_betas >= 0 else np.zeros(leaky2_betas.shape)
         print(f"leaky2 betas:{leaky2_betas}")
         print(f"leaky2 vth:{leaky2_vth}")
 
-        leaky2_betas= leaky2_betas if  leaky2_betas >= 0 else np.zeros(leaky2_betas.shape)
         if is_fixed:
             leaky2_betas = fp32_to_fixed_point_unsigned(leaky2_betas, 12)
             # leaky2_betas = np.right_shift(leaky2_betas, 4)
@@ -91,18 +91,11 @@ class InibitoryLifNet(AbstractProcess):
         else:
             linear2 = data['linear2']
             
-
-
-
-        
-
-        
-        
-
         recurrent_vth = data['activation_vth']
         recurrent_leaky_betas = 1 - data['activation_betas']
-        
         recurrent_leaky_betas= recurrent_leaky_betas if recurrent_leaky_betas >= 0 else np.zeros(recurrent_leaky_betas.shape)
+        print(f"recurrent betas:{recurrent_leaky_betas}")
+        print(f"recurrent vth:{recurrent_vth}")
         if is_fixed:
             recurrent_leaky_betas = fp32_to_fixed_point_unsigned(recurrent_leaky_betas, 12)
             recurrent_leaky_betas = recurrent_leaky_betas.astype(np.uint16)
@@ -118,14 +111,13 @@ class InibitoryLifNet(AbstractProcess):
             recurrent_in_weights = data['input_dense']
             recurrent_out_weights = data['output_dense']
 
-        print(f"recurrent vth:{recurrent_vth}")
-        print(f"recurrent betas:{recurrent_leaky_betas}")
-        
         
         
         leaky3_vth= data['leaky2_vth']
         leaky3_betas= 1 - data['leaky2_betas']
         leaky3_betas= leaky3_betas if leaky3_betas >= 0 else np.zeros(leaky3_betas.shape)
+        print(f"leaky3 betas:{leaky3_betas}")
+        print(f"leaky3 vth:{leaky3_vth}")
 
         if is_fixed:
             print(f"leaky3 betas before conversion:{leaky3_betas}")
@@ -147,9 +139,6 @@ class InibitoryLifNet(AbstractProcess):
         else:
             du = 1.0
     
-        print(f"leaky3 betas:{leaky3_betas}")
-        print(f"leaky3 vth:{leaky3_vth}")
-        print(f"recurrent beta:{recurrent_leaky_betas}")
         log_config = params.pop('log_config', 0)
         self.debug = params.pop('debug', False)
 
@@ -228,10 +217,6 @@ class InibitoryLifNet(AbstractProcess):
 
         self.recurrent_in_a_buffer.set(np.zeros(self.recurrent_in_a_buffer.shape))
         self.recurrent_out_a_buffer.set(np.zeros(self.recurrent_out_a_buffer.shape))
-        print(f"leaky2_vth: {self.leaky2_vth.get()}")
-        print(f"leaky3_betas: {self.leaky3_betas.get()}")
-        print(f"leaky3_vth: {self.leaky3_vth.get()}")
-        print("")
     
     def print_weights(self):
         print('###network weights###')

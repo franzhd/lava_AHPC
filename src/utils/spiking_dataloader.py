@@ -258,7 +258,7 @@ class Py_spike_dataloader(PyLoihiProcessModel):
         else:
             s_out = np.array([0.0]*self.curr_sample.shape[0])
 
-        self.data_out.send(s_out)
+        self.data_out.send(np.array([s_out]).flatten().astype(float))
 
 ## for each iteretion:
 ## run_spk ---> post_guard ---True---> run_post_mgmt

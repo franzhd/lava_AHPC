@@ -25,8 +25,9 @@ class PyLifEncoderModelMixed(AbstractPyLifModelFloat):
     
     def spiking_activation(self):
         """Spiking activation function for LIF."""
-        return self.v > self.vth
-
+        return  self.v > self.vth
+         
+    
 @implements(proc=LIFEncoder, protocol=LoihiProtocol)
 @requires(CPU)
 @tag("floating_pt")

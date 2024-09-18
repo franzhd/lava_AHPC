@@ -38,18 +38,16 @@ class OutputProcess(AbstractProcess):
         self.gt_labels = Var(shape=(n_img,))
 
 
-@implements(proc=OutputProcess, protocol=LoihiProtocol)
-@requires(CPU)
-@tag("floating_pt", "fixed_pt")
+
 class PyOutputProcessModel(PyLoihiProcessModel):
-    label_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, int, precision=32)
-    spikes_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, bool, precision=1)
-    clear_intervall: int = LavaPyType(int, int, precision=32)
-    num_images: int = LavaPyType(int, int, precision=32)
-    spikes_accum: np.ndarray = LavaPyType(np.ndarray, np.int32, precision=32)
-    num_step_per_sample: int = LavaPyType(int, int, precision=32)
-    pred_labels: np.ndarray = LavaPyType(np.ndarray, int, precision=32)
-    gt_labels: np.ndarray = LavaPyType(np.ndarray, int, precision=32)
+    label_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, int)
+    spikes_in: None
+    clear_intervall: int = LavaPyType(int, int)
+    num_images: int = LavaPyType(int, int)
+    spikes_accum: np.ndarray = LavaPyType(np.ndarray, np.int32)
+    num_step_per_sample: int = LavaPyType(int, int)
+    pred_labels: np.ndarray = LavaPyType(np.ndarray, int)
+    gt_labels: np.ndarray = LavaPyType(np.ndarray, int)
         
     def __init__(self, proc_params):
         super().__init__(proc_params=proc_params)
@@ -79,3 +77,18 @@ class PyOutputProcessModel(PyLoihiProcessModel):
         """
         spk_in = self.spikes_in.recv()
         self.spikes_accum = self.spikes_accum + spk_in
+
+
+@implements(proc=OutputProcess, protocol=LoihiProtocol)
+@requires(CPU)
+@tag("floating_pt")
+class pyFlaotOutputProcessModel(PyOutputProcessModel):
+    spikes_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, float)
+
+
+
+@implements(proc=OutputProcess, protocol=LoihiProtocol)
+@requires(CPU)
+@tag("fixed_pt")
+class PyFixedOutputProcessModel(PyOutputProcessModel):
+    spikes_in: PyInPort = LavaPyType(PyInPort.VEC_DENSE, np.int32)
