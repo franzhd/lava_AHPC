@@ -24,7 +24,7 @@ parent_folder = os.path.dirname(current_folder)
 sys.path.append(parent_folder)
 from dense_mod import DenseEncoder
 from lif_mod import LIFEncoder
-from utils.sum_process import SumProcess
+
 def fp32_to_fixed_point_unsigned(values: np.array, num_bits: int) -> int:
     """Converts a floating point number to a fixed point number."""
     max_val = 2 ** num_bits - 1

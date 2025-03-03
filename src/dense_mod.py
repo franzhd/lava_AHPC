@@ -3,7 +3,7 @@ from lava.magma.core.process.process import AbstractProcess, LogConfig
 from lava.magma.core.sync.protocols.loihi_protocol import LoihiProtocol
 from lava.proc.dense.models import AbstractPyDenseModelFloat, PyDenseModelFloat
 from lava.magma.core.resources import CPU
-from lava.magma.core.decorator import implements, requires, tag
+from lava.magma.core.decorator import implements, requires , tag
 from lava.magma.core.model.py.ports import PyInPort, PyOutPort
 from lava.magma.core.model.py.type import LavaPyType
 

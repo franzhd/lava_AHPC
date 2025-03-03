@@ -1,3 +1,7 @@
 data/*
 !data/.gitkeep
 **/__pycache__/
+!nni_experiments
+nni_experiments/*/results/*
+!nni_experiments/*/results/.gitkeep
+nni_experiments/*.tar.gz

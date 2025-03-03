@@ -188,7 +188,7 @@ class WISDM_spiking_dataloader(AbstractProcess):
         num_samples = data_shape[0]
         num_channels = data_shape[1]
         num_timesteps = data_shape[2] 
-        num_classes = signal_set[1].max()
+        num_classes = signal_set[1].max()+1
 
         self.clear_intervall = Var(shape=(1,), init=clear_intervall)  # Network delay
         self.samples = Var(shape=(num_samples, num_channels, num_timesteps), init=signal_set[0])  # Input samples
@@ -196,9 +196,10 @@ class WISDM_spiking_dataloader(AbstractProcess):
 
         self.data_out = OutPort(shape=(num_channels,))  # Input spikes to the classifier
         self.label_out = OutPort(shape=(1,))  # Ground truth labels to OutputProc
+        self.spike_objective = OutPort(shape=(num_classes,))  # Objective spikes to the classifier
 
         self.curr_sample = Var(shape=(num_channels, num_timesteps))  # Current sample being processed
-        self.curr_label = Var(shape=(1,))
+        self.curr_label = Var(shape=(1,), init=signal_set[1][0])
         self.num_samples = Var(shape=(1,), init=num_samples)
         self.num_timesteps_per_sample = Var(shape=(1,), init=num_timesteps)
         self.num_classes= Var(shape=(1,), init=num_classes)
@@ -219,7 +220,7 @@ class Py_spike_dataloader(PyLoihiProcessModel):
 
     data_out: PyOutPort = LavaPyType(PyOutPort.VEC_DENSE, np.float32, precision=32)
     label_out: PyOutPort = LavaPyType(PyOutPort.VEC_DENSE, np.float32, precision=32)
-    
+    spike_objective: PyOutPort = LavaPyType(PyOutPort.VEC_DENSE, int)
     num_timesteps_per_sample: int = LavaPyType(int, int, precision=32)
     num_classes: int = LavaPyType(int, int, precision=32)
     curr_label: int = LavaPyType(int, int, precision=32)
@@ -259,6 +260,10 @@ class Py_spike_dataloader(PyLoihiProcessModel):
             s_out = np.array([0.0]*self.curr_sample.shape[0])
 
         self.data_out.send(np.array([s_out]).flatten().astype(float))
+        #print(f"current label{self.curr_label}")
+        obj_out = np.zeros(self.num_classes)
+        obj_out[self.curr_label] = 1
+        self.spike_objective.send(obj_out)
 
 ## for each iteretion:
 ## run_spk ---> post_guard ---True---> run_post_mgmt
