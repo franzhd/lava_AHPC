@@ -1,0 +1,13 @@
+Metadata-Version: 2.2
+Name: lava_network
+Version: 0.1.0
+Summary: Lava porting of snntorch ExInhibitory network
+Author-email: Francesco Guarino <francesco.guarino@polito.it>
+License: MIT
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: numpy
+Requires-Dist: matplotlib
+Requires-Dist: tqdm
+
+# lava_network

@@ -1,0 +1,11 @@
+{   
+    "A_plus": {"_type": "quniform", "_value": [1,10,1]},
+    "A_minus": {"_type": "quniform", "_value": [-10,-1,1]},
+    "tau_plus": {"_type": "quniform", "_value": [1,10,1]},
+    "tau_minus": {"_type": "quniform", "_value": [1,10,1]},
+    "x1_impulse": {"_type": "quniform", "_value": [1,16,1]},
+    "y1_impulse": {"_type": "quniform", "_value": [1,16,1]},
+    "learning_rate": {"_type": "quniform", "_value": [1,10,1]},
+    "eligibility_trace_decay_tau": {"_type": "quniform", "_value": [0,1,0.1]},
+    "t_epoch": {"_type": "quniform", "_value": [2,20,2]}
+}

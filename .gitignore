@@ -5,3 +5,7 @@ data/*
 nni_experiments/*/results/*
 !nni_experiments/*/results/.gitkeep
 nni_experiments/*.tar.gz
+usefull_images/*
+.vscode/
+**/*.pyc
+**/__pycache__/

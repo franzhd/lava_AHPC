@@ -1,0 +1,31 @@
+[project]
+name = "lava_network"
+version = "0.1.0"
+description = "Lava porting of snntorch ExInhibitory network"
+authors = [
+    {name = "Francesco Guarino", email = "francesco.guarino@polito.it"},
+]
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "tqdm"
+    ]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["lava_network"]
+
+[tool.setuptools.package-dir]
+"lava_network" = "src/lava_network"
+
+[tool.setuptools.package-data]
+"*" = ["py.typed"]
+
+[tool.pdm]
+distribution = true

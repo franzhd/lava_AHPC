@@ -1,0 +1,23 @@
+ 
+experimentName: inibitory_RSTDP
+trialConcurrency: 2
+maxExperimentDuration: 72h
+maxTrialNumber: 1000
+trainingService:
+  platform: local
+  useActiveGpu: True
+  maxTrialNumberPerGpu: 4
+searchSpaceFile: ~/lava_AHPC/nni_experiments/inibitory_RSTDP/search_space/search_space1.json
+useAnnotation: false
+tuner: 
+    name: Anneal
+    classArgs:
+      optimize_mode: maximize
+
+
+trialCodeDirectory: ~/lava_AHPC/nni_experiments/inibitory_RSTDP/code/
+trialCommand: python3 experiment1.py --trial_path inibitory_RSTDP/
+experimentWorkingDirectory: ~/lava_AHPC/nni_experiments/inibitory_RSTDP/results/
+trialGpuNumber: 1
+
+
